@@ -3,6 +3,9 @@
 const int Vs = 6; // Pin PWM
 const int Vo = A2; // Pin Vo
 const int Ref = A1; // Pin Pot
+const int Switch = 7; // Pin Switch
+const int Boton = 8; // Pin Switch
+
 
 // Definición e inicialización
 float ePrv[2] = {0.0, 0.0};
@@ -21,17 +24,47 @@ float leerSalida();
 void funcionControlador();
 void toggleReferencia();
 void printLog();
+void definirEntradaBoton();
+void definirEntradaSwitch();
 
 // Definir los periodos de las tareas
 Task taskControlador(75, TASK_FOREVER, &funcionControlador, &RealTimeCore, true);
 Task taskReferencia(6000, TASK_FOREVER, &toggleReferencia, &RealTimeCore, true);
 Task taskPrintLog(75, TASK_FOREVER, &printLog, &RealTimeCore, true);
+//Task taskEntradaSwitch(500, TASK_FOREVER, &definirEntradaSwitch, &RealTimeCore, true);
+Task taskEntradaBoton(500, TASK_FOREVER, &definirEntradaBoton, &RealTimeCore, true);
 
 // Variable para alternar entre 1 V y 3.5 V
 bool referenciaAlta = true;
 
 // Variable para elegir Pot
 bool usarPotenciometro = false;
+
+//Funcion con boton 
+void definirEntradaBoton(){
+  int estado = digitalRead(Boton);
+  if (estado == HIGH) {
+    usarPotenciometro = !usarPotenciometro; 
+  }
+  Serial.print(estado);
+  Serial.print(",");
+  Serial.print(usarPotenciometro);
+   Serial.println();
+}
+
+
+
+//Fucnión para deternimar Switch ON or OFF
+
+void definirEntradaSwitch(){
+  int estado = digitalRead(Switch);
+  if (estado == HIGH) {
+    usarPotenciometro = true; //Si el switch está encendido
+  }else if (estado == LOW) {
+    usarPotenciometro = false; // Si el switch está apagado
+  }
+  //Serial.print(estado);
+}
 
 // Función para alternar la referencia entre 1 V y 3.5 V
 void toggleReferencia() {
@@ -62,7 +95,7 @@ void funcionControlador() {
   float e = referenciaVolt - salidaVolt;
 
   // Ecuación en diferencias del controlador
-  uk = uPrv[0] + 1.3246*e - 0.9656 * 1.3246 * ePrv[0];
+  uk = uPrv[0] + 1.7361*e - 0.9714 * 1.7361 * ePrv[0];
 
   // Actualización de valores de instantes previos
   // ePrv[1] = ePrv[0];
@@ -89,24 +122,28 @@ void printLog() {
   // Serial.print(salidaVolt);
   // Serial.print(", u: ");
   // Serial.print(uk);
-  Serial.print(referenciaVolt);
-  Serial.print(", ");
-  Serial.print(salidaVolt);
-  Serial.print(", ");
-  Serial.print(uk);
+  //Serial.print(referenciaVolt);
+  //Serial.print(", ");
+  //Serial.print(salidaVolt);
+  //Serial.print(", ");
+  //Serial.print(uk);
   //Serial.print(", ");
   //Serial.print(uPrv[0]);
   //Serial.print(", ");
   //Serial.print(e);
-  Serial.println();
+  //Serial.print(", ");
+  //Serial.println();
 }
 
 void setup() {
+  pinMode(Boton,INPUT_PULLUP);
+  pinMode(Switch, INPUT);
   Serial.begin(9600);
   RealTimeCore.startNow();
 }
 
 void loop() {
+  //definirEntrada();
   RealTimeCore.execute();
   //Serial.println(leerReferencia());
 }
