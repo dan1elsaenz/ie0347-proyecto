@@ -1,109 +1,112 @@
 #include <TaskScheduler.h>
+// Entradas y salidas del Arduino
+const int Vs = 6; // Pin PWM
+const int Vo = A2; // Pin Vo
+const int Ref = A1; // Pin Pot
 
-const int Vs  = 6;               // Pin PWM 
-const int pwmMin = 51;           // 1V  (≈ 51/255 * 5V)
-const int pwmMax = 179;          // 3.5V (≈ 179/255 * 5V)
-const int halfPeriod = 3000;     // 3000 ms = 3 segundos
+// Definición e inicialización
+float ePrv[2] = {0.0, 0.0};
+float uPrv[2] = {0.0, 0.0};
+float uk;
 
-bool ModoSenial = true; // Modo de senial en potenciometro por default :) 
-float r = 0.0;
-float y = 0.0; 
-float e = 0.0;
-float u_k1 = 0.0; 
-float u_k2 = 0.0;
-float e_k1 = 0.0;
-float e_k2 = 0.0;
-float u = 0.0; 
+// Constantes para la función u(k)
+const float a = -1.924, b = 0.9276, c = -1, d = -0.1353, g = 69.444;
 
+// Crear el objeto de Scheduler
+Scheduler RealTimeCore;
 
-Scheduler runner;
+// Definir las funciones de las tareas
+float leerReferencia();
+float leerSalida();
+void funcionControlador();
+void toggleReferencia();
+void printLog();
 
-void setHigh();
-void setLow();
+// Definir los periodos de las tareas
+Task taskControlador(75, TASK_FOREVER, &funcionControlador, &RealTimeCore, true);
+Task taskReferencia(6000, TASK_FOREVER, &toggleReferencia, &RealTimeCore, true);
+Task taskPrintLog(75, TASK_FOREVER, &printLog, &RealTimeCore, true);
 
-Task tHigh(halfPeriod, TASK_FOREVER, &setHigh, &runner, true);
-Task tLow(halfPeriod, TASK_FOREVER, &setLow, &runner, true);
+// Variable para alternar entre 1 V y 3.5 V
+bool referenciaAlta = true;
 
-void setHigh(){
-  analogWrite(Vs, pwmMax);
-  tLow.enableDelayed(halfPeriod); // Low en 3 segundos
+// Variable para elegir Pot
+bool usarPotenciometro = false;
+
+// Función para alternar la referencia entre 1 V y 3.5 V
+void toggleReferencia() {
+    if (!usarPotenciometro) {
+        referenciaAlta = !referenciaAlta;
+    }
 }
 
-
-void setLow(){
-  analogWrite(Vs, pwmMin);
-  tHigh.enableDelayed(halfPeriod); // Low en 3 segundos
-}
-
-
-// Agregar ifs de la entrada con el potenciometro 
-
-float MEntrada(int entrada){
-  return map(entrada, 0, 1023, 1000, 3500) / 1000.0; 
-}
-
-float MSalida(int salida){
-  return map(salida, 0, 255, 0, 5000) / 1000.0; 
-}
-
-bool modo(){
-  //No creo que sea necesario meter manejo de errores pq el programa se debería de utilizar a conciencia. 
-  Serial.println("Selección de modo para la señal: \n 1 - Potenciómetro \n 2 - Señal cuadrada");
-  String entrada = Serial.readStringUntil('\n');
-  if (entrada == 1){
-    return true;
-  } else if (entrada == 2){
-    return false;
+// Función para leer la referencia
+float leerReferencia() {
+  if (usarPotenciometro) {
+    int lectura = analogRead(Ref);
+    return map(lectura, 0, 1023, 1000, 3500) / 1000.0;
+  } else {
+      return referenciaAlta ? 3.5 : 1.0;
   }
 }
 
-float CalculoU(){
+// Función para leer la salida de la planta
+float leerSalida() {
+  return (analogRead(Vo) * 5.0) / 1023.0;
+}
 
-    //Calculo valor actual de U 
+// Definición de la función del controlador
+void funcionControlador() {
+  float referenciaVolt = leerReferencia();
+  float salidaVolt = leerSalida();
+  float e = referenciaVolt - salidaVolt;
 
-    u = 1.1353 * u_k1 - 0.1353 * u_k2 + 277.78 * e - 1.924 * 277.78 * e_k1 + 277.78 * 0.9276 * e_k2; 
+  // Ecuación en diferencias del controlador
+  uk = uPrv[0] + 1.3246*e - 0.9656 * 1.3246 * ePrv[0];
 
-  
-    //Serial.println(MEntrada(A1)); //Para prueba 
-    //Serial.println(MSalida(u));   //Para prueba
+  // Actualización de valores de instantes previos
+  // ePrv[1] = ePrv[0];
+  ePrv[0] = e;
+  // uPrv[1] = uPrv[0];
+  uPrv[0] = uk;
 
-    u_k1 = u; 
-    e_k1 = e; 
-    u_k2 = u_k1;
-    e_k2 = e_k1; 
+  // Normalización para PWM
+  uk = constrain(uk, 0.0, 5.0);
+  float u_normalizado = (uk * 255.0) / 5.0;
 
-  return u; 
+  analogWrite(Vs, u_normalizado);
+}
 
-  }
+// Función para imprimir los valores al monitor serial
+void printLog() {
+  float referenciaVolt = leerReferencia();
+  float salidaVolt = leerSalida();
+  float e = referenciaVolt - salidaVolt;
 
-
+  // Serial.print("r: ");
+  // Serial.print(referenciaVolt);
+  // Serial.print(", y: ");
+  // Serial.print(salidaVolt);
+  // Serial.print(", u: ");
+  // Serial.print(uk);
+  Serial.print(referenciaVolt);
+  Serial.print(", ");
+  Serial.print(salidaVolt);
+  Serial.print(", ");
+  Serial.print(uk);
+  //Serial.print(", ");
+  //Serial.print(uPrv[0]);
+  //Serial.print(", ");
+  //Serial.print(e);
+  Serial.println();
+}
 
 void setup() {
   Serial.begin(9600);
-  pinMode(Vs, OUTPUT); 
-  ModoSenial = modo();
+  RealTimeCore.startNow();
 }
-
-
-
 
 void loop() {
-
-  if (ModoSenial == true){
-    r = MEntrada(analogRead(A1));
-    y = MEntrada(analogRead(A2)); 
-    e = r - y; 
-    digitalWrite(MSalida(u), PD6); 
-    Serial.println(y);
-    CalculoU();
-  } else if (ModoSenial == false){
-      setHigh(); // Dentro de la funcion se llama a setLow para ir creadon la senial cuadrada de periodo 6s
-  }
+  RealTimeCore.execute();
+  //Serial.println(leerReferencia());
 }
-
-
-
-
-
-
-
