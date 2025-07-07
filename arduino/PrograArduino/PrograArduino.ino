@@ -1,4 +1,8 @@
 #include <TaskScheduler.h>
+#include <TimeLib.h>
+
+unsigned long tiempoInicio;
+
 // Entradas y salidas del Arduino
 const int Vs = 6; // Pin PWM
 const int Vo = A2; // Pin Vo
@@ -26,13 +30,16 @@ void toggleReferencia();
 void printLog();
 void definirEntradaBoton();
 void definirEntradaSwitch();
+void tiempoReal();  
+
 
 // Definir los periodos de las tareas
 Task taskControlador(75, TASK_FOREVER, &funcionControlador, &RealTimeCore, true);
 Task taskReferencia(6000, TASK_FOREVER, &toggleReferencia, &RealTimeCore, true);
 Task taskPrintLog(75, TASK_FOREVER, &printLog, &RealTimeCore, true);
-//Task taskEntradaSwitch(500, TASK_FOREVER, &definirEntradaSwitch, &RealTimeCore, true);
-Task taskEntradaBoton(500, TASK_FOREVER, &definirEntradaBoton, &RealTimeCore, true);
+Task taskEntradaSwitch(500, TASK_FOREVER, &definirEntradaSwitch, &RealTimeCore, true);
+//Task taskEntradaBoton(500, TASK_FOREVER, &definirEntradaBoton, &RealTimeCore, true);
+Task taskTiempoReal(75, TASK_FOREVER, &tiempoReal, &RealTimeCore, true); 
 
 // Variable para alternar entre 1 V y 3.5 V
 bool referenciaAlta = true;
@@ -46,11 +53,14 @@ void definirEntradaBoton(){
   if (estado == HIGH) {
     usarPotenciometro = !usarPotenciometro; 
   }
-  Serial.print(estado);
-  Serial.print(",");
-  Serial.print(usarPotenciometro);
-   Serial.println();
 }
+
+void tiempoReal() {
+  unsigned long tiempoActual = millis();
+  float tiempoSegundos = (tiempoActual - tiempoInicio) / 1000.0;
+  //Serial.print("t: ");
+  Serial.print(tiempoSegundos, 2); 
+}       
 
 
 
@@ -116,23 +126,23 @@ void printLog() {
   float salidaVolt = leerSalida();
   float e = referenciaVolt - salidaVolt;
 
-  // Serial.print("r: ");
-  // Serial.print(referenciaVolt);
-  // Serial.print(", y: ");
-  // Serial.print(salidaVolt);
-  // Serial.print(", u: ");
-  // Serial.print(uk);
-  //Serial.print(referenciaVolt);
-  //Serial.print(", ");
-  //Serial.print(salidaVolt);
-  //Serial.print(", ");
-  //Serial.print(uk);
-  //Serial.print(", ");
+   //Serial.print("r: ");
+   //Serial.print(referenciaVolt);
+   //Serial.print(", y: ");
+   //Serial.print(salidaVolt);
+   //Serial.print(", u: ");
+   //Serial.print(uk);
+  Serial.print(referenciaVolt);
+  Serial.print(", ");
+  Serial.print(salidaVolt);
+  Serial.print(", ");
+  Serial.print(uk);
+  Serial.print(", ");
   //Serial.print(uPrv[0]);
   //Serial.print(", ");
-  //Serial.print(e);
+  Serial.print(e);
   //Serial.print(", ");
-  //Serial.println();
+  Serial.println();
 }
 
 void setup() {
@@ -140,6 +150,8 @@ void setup() {
   pinMode(Switch, INPUT);
   Serial.begin(9600);
   RealTimeCore.startNow();
+  tiempoInicio = millis();  
+  setTime(0);
 }
 
 void loop() {
