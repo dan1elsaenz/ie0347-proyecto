@@ -38,8 +38,6 @@ Task taskControlador(75, TASK_FOREVER, &funcionControlador, &RealTimeCore, true)
 Task taskReferencia(6000, TASK_FOREVER, &toggleReferencia, &RealTimeCore, true);
 Task taskPrintLog(75, TASK_FOREVER, &printLog, &RealTimeCore, true);
 Task taskEntradaSwitch(500, TASK_FOREVER, &definirEntradaSwitch, &RealTimeCore, true);
-//Task taskEntradaBoton(500, TASK_FOREVER, &definirEntradaBoton, &RealTimeCore, true);
-Task taskTiempoReal(75, TASK_FOREVER, &tiempoReal, &RealTimeCore, true); 
 
 // Variable para alternar entre 1 V y 3.5 V
 bool referenciaAlta = true;
@@ -55,12 +53,7 @@ void definirEntradaBoton(){
   }
 }
 
-void tiempoReal() {
-  unsigned long tiempoActual = millis();
-  float tiempoSegundos = (tiempoActual - tiempoInicio) / 1000.0;
-  //Serial.print("t: ");
-  Serial.print(tiempoSegundos, 2); 
-}       
+
 
 
 
@@ -73,7 +66,7 @@ void definirEntradaSwitch(){
   }else if (estado == LOW) {
     usarPotenciometro = false; // Si el switch está apagado
   }
-  //Serial.print(estado);
+  //Serial.println(estado);
 }
 
 // Función para alternar la referencia entre 1 V y 3.5 V
@@ -108,15 +101,12 @@ void funcionControlador() {
   uk = uPrv[0] + 1.7361*e - 0.9714 * 1.7361 * ePrv[0];
 
   // Actualización de valores de instantes previos
-  // ePrv[1] = ePrv[0];
   ePrv[0] = e;
-  // uPrv[1] = uPrv[0];
   uPrv[0] = uk;
 
   // Normalización para PWM
   uk = constrain(uk, 0.0, 5.0);
   float u_normalizado = (uk * 255.0) / 5.0;
-
   analogWrite(Vs, u_normalizado);
 }
 
@@ -125,23 +115,20 @@ void printLog() {
   float referenciaVolt = leerReferencia();
   float salidaVolt = leerSalida();
   float e = referenciaVolt - salidaVolt;
+  unsigned long tiempoActual = millis();
 
-   //Serial.print("r: ");
-   //Serial.print(referenciaVolt);
-   //Serial.print(", y: ");
-   //Serial.print(salidaVolt);
-   //Serial.print(", u: ");
-   //Serial.print(uk);
+  float tiempoSegundos = (tiempoActual - tiempoInicio) / 1000.0;
+  //Serial.print(" r: ");
   Serial.print(referenciaVolt);
   Serial.print(", ");
+  //Serial.print(" y: ");
   Serial.print(salidaVolt);
-  Serial.print(", ");
-  Serial.print(uk);
-  Serial.print(", ");
-  //Serial.print(uPrv[0]);
   //Serial.print(", ");
-  Serial.print(e);
+  //Serial.print(" u: ");
+  //Serial.print(uk);
   //Serial.print(", ");
+  //Serial.print(" e: ");
+  //Serial.print(e);
   Serial.println();
 }
 
@@ -155,7 +142,5 @@ void setup() {
 }
 
 void loop() {
-  //definirEntrada();
   RealTimeCore.execute();
-  //Serial.println(leerReferencia());
 }
