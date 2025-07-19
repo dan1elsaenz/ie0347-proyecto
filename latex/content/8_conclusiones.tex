@@ -1,0 +1,15 @@
+% 6_conclusiones.tex
+
+\section{Conclusiones}
+
+Las principales conclusiones determinadas a partir del proceso de diseño e implementación experimental del sistema de control realimentado del proyecto se enumeran a continuación:
+
+\begin{enumerate}
+    \item Se determinó que el circuito RC de la planta corresponde a un sistema de segundo orden, tipo 0 y sobreamortiguado, lo cual se verificó analíticamente mediante la obtención de la función de transferencia. Este entendimiento permitió modelar con precisión la dinámica del sistema y justificó la necesidad de incluir un integrador en el controlador para alcanzar error estacionario nulo, en concordancia con el objetivo de especificación dado en el enunciado del proyecto.
+    
+    \item El análisis del sistema en lazo abierto evidenció una respuesta lenta y sin sobrepaso, debido al polo dominante en $s=-0.4067$. Este hallazgo fue clave para aplicar la técnica del \textit{Lugar Geométrico de las Raíces} (LGR), mediante la cual se colocó un cero en el controlador que canceló el polo dominante, para reducir el tiempo de asentamiento al $2\%$. La ubicación final de los polos en lazo cerrado cumplió simultáneamente con las restricciones de margen de ganancia, fase y sobrepaso máximo, así como la amplitud de la señal de control requerida, lo cual validó el diseño del controlador propuesto.
+    
+    \item La discretización del controlador se realizó utilizando un tiempo de muestreo de \SI{100}{\milli\second}, elegido de forma tal que se preserve la estabilidad y fidelidad del sistema al implementarse en el microcontrolador del Arduino UNO R3. Las simulaciones en tiempo discreto demostraron que la respuesta obtenida mantiene las especificaciones requeridas (error estacionario nulo, tiempo de asentamiento al $2\%$ menor a \SI{5}{\second} y sobrepaso menor al $5\%$), lo cual validó la eficacia del proceso de discretización y su viabilidad de acuerdo con los límites del hardware.
+    
+    \item La implementación experimental en el Arduino corroboró el comportamiento previsto por el modelo discreto simulado, tanto para entradas suaves (potenciómetro) como abruptas (señal cuadrada). Se logró reproducir con precisión el tiempo de asentamiento y el sobrepaso esperado, salvo ligeras diferencias atribuibles a la saturación de la señal de control o a condiciones iniciales distintas de las simuladas. Estos resultados experimentales validan tanto el modelo de la planta como la técnica de diseño del controlador.
+\end{enumerate}

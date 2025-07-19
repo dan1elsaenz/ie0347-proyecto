@@ -1,0 +1,133 @@
+% 4_diseno_controlador.tex
+
+\section{Diseño del controlador}
+
+Para el diseño del controlador $C$ del sistema de control realimentado diseñado, se debieron analizar las especificaciones dadas en el enunciado respecto a cambios tipo escalón unitario en la referencia:
+\begin{itemize}
+    \item Error estacionario igual a cero.
+    \item Tiempo de asentamiento al $2\%$ menor o igual a \SI{5}{\second}.
+    \item Sobrepaso máximo menor al $5\%$.
+    \item Margen de fase mayor a $30^\circ$ y de ganancia superior a \SI{6}{\deci\bel}.
+\end{itemize}
+
+Con base en dichas consideraciones, se diseñó el controlador utilizando la técnica del \textit{Lugar Geométrico de las Raíces} (LGR).
+Inicialmente, por la naturaleza del sistema, tipo 0, se requiere colocar un integrador en la función de transferencia del controlador para conseguir un error estacionario nulo.
+Sin embargo, bajo esta configuración, se tiene un tiempo de asentamiento al $2\%$ de \SI{27.9}{\second}.
+
+Luego, se aplicó la teoría de cancelación de polos del modelo de la planta, por medio de la adición de ceros en el controlador, tal que sus ubicaciones coincidan.
+Esto se realiza de forma que se cancela el polo dominante, según \eqref{polos}, $s = -0.4067$.
+Así, al agregar un cero en la ubicación anterior, se elimina efectivamente la constante de tiempo asociada a este polo y el tiempo de respuesta del sistema disminuye.\cite{b1}
+
+En la Figura \ref{fig:root-locus}, se muestra la ubicación de los polos seleccionados para el controlador.
+Se colocaron requerimientos de diseño para ajustar el diseño del controlador a las especificaciones dadas al inicio.
+
+\begin{figure}[htbp]
+    \centering
+    \resizebox{0.95\columnwidth}{!}{
+    \def\svgwidth{\columnwidth}
+    \import{images/root_locus}{root_locus.pdf_tex}
+    }
+    \caption{Diseño del controlador utilizando la técnica de LGR.}
+    \label{fig:root-locus}
+\end{figure}
+
+La línea vertical se coloca de tal forma que se cumpla la especificación de tiempo de asentamiento al $2\%$ menor que \SI{5}{\second}.
+Se debe cumplir que $s < -0.8$.
+Esto se obtiene a partir de la definición de este requerimiento.
+
+Asimismo, para cumplir con la especificación del sobrepaso máximo, se tiene que esta variable depende de $\xi$.
+A partir de la definición, se obtiene que se tiene un ángulo respecto al eje horizontal límite de $\theta = 46.3619^\circ$ para cumplir con esta especificación.
+En el Apéndice \ref{anexoB}, se muestran los cálculos detallados de estos valores numéricos según la teoría vista en el curso.
+
+Ahora bien, para cumplir con ambos parámetros, se requiere que la ubicación de los polos esté en la región blanca, lo cual se cumple en el caso del diseño.
+
+Con base en el análisis descrito anteriormente, se determinó el controlador resultante.
+
+\begin{equation} \label{eq:controlador_continuo}
+    C(s) = \frac{1.5996 \left(s+0.4060\right)}{s}
+\end{equation}
+
+\section{Simulaciones en tiempo continuo y discreto}
+
+Para la verificación de los resultados correspondientes al diseño del controlador, se realizaron las simulaciones en tiempo continuo y discreto mediante el uso de las herramientas \texttt{Sisotool} y \texttt{Simulink} de MATLAB.
+
+\subsection{Tiempo continuo}
+
+Primero, en la Figura \ref{fig:respuesta-temporal-continua}, se muestra el resultado de la simulación del controlador continuo exportado de \texttt{Sisotool} con la planta en cuestión y el lazo de realimentación.
+Esta simulación está asociada al diagrama de bloques de la Figura \ref{fig:diagrama-bloques-lazo-cerrado}.
+
+\begin{figure}[htbp]
+    \centering
+    \resizebox{0.95\columnwidth}{!}{
+    \def\svgwidth{1\columnwidth}
+    \import{images/respuesta_continua}{respuesta_continua.pdf_tex}
+    }
+    \caption{Simulación de la respuesta temporal en lazo cerrado con el modelo del controlador y de la planta en tiempo continuo.}
+    \label{fig:respuesta-temporal-continua}
+\end{figure}
+
+Según el diseño realizado, se tiene una respuesta sobreamortiguada, lo cual indica que no existe sobrepaso respecto a la señal de referencia del escalón unitario.
+Asimismo, se obtuvo un tiempo de asentamiento al $2\%$ de \SI{4.64}{\second}, lo cual cumple con la especificación proporcionada.
+Como se agregó un integrador al controlador, se determinó que efectivamente, el error estacionario es de $0 \%$.
+
+Además, la señal de control $u$ en respuesta al escalón unitario posee una amplitud máxima menor a \SI{2}{\volt} (\SI{1.6906}{\volt} específicamente).
+Este corresponde a un valor aceptable respecto a lo que puede proporcionar el controlador utilizado, entre 0 y \SI{5}{\volt}.
+También, se observa que conforme la salida se aproxima a la referencia, la magnitud de la señal de control disminuye, lo cual es esperable según la teoría y tiende a $1$.
+
+Ahora bien, aparte del análisis en el dominio temporal, se requiere estudiar el comportamiento en el dominio de la frecuencia, para el cual interesan dos cantidades: el margen de ganancia y de fase.
+
+Según la Figura \ref{fig:bode-lazo-cerrado}, se determinó en MATLAB un margen de ganancia infinito (no se da el cruce en la fase de $-180^\circ$).
+Esto implica que es posible aumentar la ganancia indefinidamente sin llegar a una inestabilidad según este criterio.
+
+Respecto al margen de fase, se reportó un valor de $77.2^\circ$.
+Típicamente, se busca que el margen de fase se encuentre entre $30^\circ$ y $60^\circ$; sin embargo, este resultado numérico implica una respuesta estable, pero más lenta respecto a un margen de fase menor, lo cual no es un inconveniente respecto a las especificaciones conseguidas con la respuesta temporal.
+
+\begin{figure}[htbp]
+    \centering
+    \resizebox{0.95\columnwidth}{!}{
+    \def\svgwidth{1.2\columnwidth}
+    \import{images/bode_lazo_cerrado}{bode_lazo_cerrado.pdf_tex}
+    }
+    \caption{Diagrama de Bode del sistema en lazo cerrado.}
+    \label{fig:bode-lazo-cerrado}
+\end{figure}
+
+\subsection{Tiempo discreto}
+
+Para la implementación del sistema de control realimentado en Arduino, es necesario convertir el controlador diseñado a una forma discreta, debido a la naturaleza digital de los microcontroladores.
+Para ello, se discretizó el controlador continuo diseñado de \eqref{eq:controlador_continuo} con el comando \texttt{cd2} de MATLAB, específicamente con el método \texttt{zoh} correspondiente a \textit{zero-order hold}.
+
+Respecto al tiempo de muestreo seleccionado, se observa que el pin digital 6 PWM permite muestrear a una frecuencia de \SI{980}{\hertz}, lo cual equivale a un tiempo de \SI{1.0204}{\milli\second}.
+Asimismo, como se deben medir los valores de tensión eléctrica de referencia, de control y de salida al menos 2 veces por segundo, según el enunciado, esto implica un límite superior de \SI{500}{\milli\second}.
+Ahora bien, con los límites establecidos anteriormente, hay que considerar que a menores tiempos de muestreo, es más probable que se presente inestabilidad al discretizar el controlador y probarlo experimentalmente.
+Por lo tanto, por las constantes de tiempo asociadas a la planta (cercanas a \SI{1}{\second}) y para evitar tener \textit{aliasing} significativo, se utilizó un tiempo de muestreo de \SI{100}{\milli\second}.\cite{b2}
+
+El resultado del proceso de discretización resulta en la función de transferencia para el controlador en el dominio $z$:
+
+\begin{equation} \label{eq:controlador_discreto}
+    C(z) = \frac{1.5996 \left( z - 0.9594 \right)}{z-1}
+\end{equation}
+
+A partir de esta expresión, se utilizó la herramienta de MATLAB \texttt{Simulink} para simular la respuesta temporal ante una entrada de escalón unitario.
+En la Figura \ref{fig:respuesta-temporal-discreta}, se muestra el resultado obtenido junto con las especificaciones de tiempo de asentamiento al $2\%$, porcentaje de sobrepaso y error estacionario.
+
+\begin{figure}[htbp]
+    \centering
+    \resizebox{0.95\columnwidth}{!}{
+    \def\svgwidth{1\columnwidth}
+    \import{images/respuesta_discreta}{respuesta_discreta.pdf_tex}
+    }
+    \caption{Simulación de la respuesta temporal en lazo cerrado con el modelo del controlador discreto y de la planta continua.}
+    \label{fig:respuesta-temporal-discreta}
+\end{figure}
+
+Respecto a las especificaciones obtenidas de la simulación, se tuvo un tiempo de asentamiento al $2\%$ de \SI{4.40}{\second}, el cual es menor respecto al caso con el controlador continuo.
+Esto se debe a que, cuando se realiza la discretización, la señal de salida presenta un ligero aumento en su valor, lo cual también afecta el porcentaje de sobrepaso respecto a la señal de referencia, pues se midió un $0.0659\%$.
+Asimismo, al igual que en el caso continuo, se presenta un error estacionario nulo.
+
+Además, respecto a la señal de control, se observa un aumento poco significativo en su amplitud máxima requerida (\SI{1.6936}{\volt}), lo cual no corresponde a un inconveniente para el controlador.
+La señal de salida y de control tardan más tiempo en estabilizarse en el valor de referencia, pero esto ocurre para valores menores a la banda del $2\%$.
+
+En la Figura \ref{fig:respuesta-temporal-discreta} se agregó la señal de salida continua a modo de comparación para poder determinar su parecido.
+Con base en los resultados obtenidos para el caso discreto respecto al continuo, se determinó que el proceso de discretización cumple con los parámetros requeridos y se asemeja a la señal de salida en tiempo continuo.
+

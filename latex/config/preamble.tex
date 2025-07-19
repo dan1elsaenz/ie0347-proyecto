@@ -1,0 +1,75 @@
+% preamble.tex
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb,amsfonts}
+\decimalpoint
+\usepackage{cite}
+\usepackage{algorithmic}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\usepackage{graphicx}
+\usepackage{import}
+\usepackage{float}
+\usepackage{comment}
+\usepackage[american]{circuitikz}
+\usepackage{siunitx}
+
+\definecolor{matlabbg}{rgb}{0.97,0.97,0.97}
+\definecolor{matlabgreen}{rgb}{0,0.5,0}
+\definecolor{matlabpurple}{rgb}{0.58,0,0.82}
+\definecolor{matlabgray}{rgb}{0.5,0.5,0.5}
+\definecolor{matlabblue}{rgb}{0,0,0.8}
+
+\lstdefinestyle{arduino}{
+    language=c,
+    backgroundcolor=\color{white},
+    commentstyle=\color{matlabgreen},
+    keywordstyle=\color{matlabpurple}\bfseries,
+    numberstyle=\tiny\color{matlabgray},
+    stringstyle=\color{matlabblue},
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    breakatwhitespace=false,
+    showstringspaces=false,
+    numbers=left,
+    numbersep=8pt,
+    % frame=single,
+    framerule=0.5pt,
+    rulecolor=\color{matlabgray},
+    tabsize=4,
+    captionpos=b,
+    keepspaces=true
+}
+
+\lstdefinestyle{matlab}{
+    language=Matlab,
+    backgroundcolor=\color{white},
+    commentstyle=\color{matlabgreen},
+    keywordstyle=\color{matlabpurple}\bfseries,
+    numberstyle=\tiny\color{matlabgray},
+    stringstyle=\color{matlabblue},
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    breakatwhitespace=false,
+    showstringspaces=false,
+    numbers=left,
+    numbersep=8pt,
+    % frame=single,
+    framerule=0.5pt,
+    rulecolor=\color{matlabgray},
+    tabsize=4,
+    captionpos=b,
+    keepspaces=true
+}
+
+
+\usepackage{changepage}
+
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}

@@ -1,0 +1,69 @@
+% 5_resultados_experimentales.tex
+
+\section{Resultados experimentales}
+
+En esta sección, se realizó el análisis de los resultados obtenidos experimentalmente respecto a los simulados en MATLAB con el controlador en tiempo discreto.
+
+El primer requerimiento para el Arduino era poder modificar la tensión eléctrica de referencia a partir de un potenciómetro.
+En la Figura \ref{fig:respuesta-exp-pot}, se muestra la señal de referencia, la de control y la salida resultantes del muestreo realizado cada \SI{100}{\milli\second}.
+
+\begin{figure}[htbp]
+    \centering
+    \resizebox{0.95\columnwidth}{!}{
+    \def\svgwidth{1\columnwidth}
+    \import{images/exp_pot}{exp_pot.pdf_tex}
+    }
+    \caption{Resultados experimentales obtenidos para el potenciómetro como tensión eléctrica de referencia.}
+    \label{fig:respuesta-exp-pot}
+\end{figure}
+
+En el primer movimiento realizado, se aumenta la tensión eléctrica de referencia hasta \SI{2.02}{\volt}.
+Para este tramo, se registró un tiempo de asentamiento al $2\%$ de \SI{4.50}{\second} al llegar al valor de salida de \SI{1.98}{\volt}.
+Posteriormente, se realizó otro movimiento para aumentar la tensión y se volvió a disminuir a \SI{2}{\volt} aproximadamente.
+En esta parte se evidencia el funcionamiento esperado del controlador bajo un tiempo de asentamiento al $2\%$ aceptable.
+
+En general para esta sección experimental en el Arduino, es importante considerar que las especificaciones obtenidas previamente eran para una entrada de un escalón unitario, como lo solicita el enunciado, bajo condiciones iniciales nulas.
+\indent Ahora bien, tanto la entrada como las condiciones iniciales son distintas respecto a la suposición realizada.
+Por ejemplo, con el potenciómetro como referencia, el aumento o disminución de tensión eléctrica no corresponde a un escalón.
+
+El segundo requerimiento experimental corresponde a poder seleccionar la tensión eléctrica de referencia como una señal cuadrada con un período de \SI{12}{\second} y un ciclo de trabajo del $50\%$, donde la tensión eléctrica en bajo es \SI{1}{\volt} y en alto es \SI{3.5}{\volt}.
+Primeramente, se realizó la simulación del controlador discreto con la planta continua con la entrada descrita anteriormente en \texttt{Simulink}.
+El resultado se muestra en la Figura \ref{fig:respuesta-sim-senal-cuadrada}.
+
+\begin{figure}[htbp]
+    \centering
+    \resizebox{0.95\columnwidth}{!}{
+    \def\svgwidth{1\columnwidth}
+    \import{images/sim_senal_cuadrada}{sim_senal_cuadrada.pdf_tex}
+    }
+    \caption{Simulación de la señal cuadrada como tensión eléctrica de referencia.}
+    \label{fig:respuesta-sim-senal-cuadrada}
+\end{figure}
+
+Según la simulación realizada, se observan dos tramos de interés: la referencia en alto y en bajo.
+Para la tensión eléctrica en alto de la señal cuadrada, se tiene un valor final aproximado de \SI{3.4992}{\volt}.
+Asimismo, se presenta un tiempo de asentamiento al $2\%$ de \SI{4.1}{\second} aproximadamente, lo cual es más rápido que para el caso del escalón unitario, pues afecta la magnitud mayor de la entrada y las condiciones iniciales.
+
+Por otro lado, para la tensión en bajo, se presenta un valor final de \SI{0.9619}{\volt}, la señal no llega a asentarse al $2\%$, y se presenta un sobrepaso del $6.18\%$.
+Nuevamente, debido a que el cambio en la entrada presenta una magnitud de $2.5$, tiene sentido que no se presente el mismo comportamiento que para el escalón unitario.
+En este caso, la señal de control se satura durante más tiempo, lo cual afecta también al valor final alcanzado para este tramo.
+
+Ahora bien, respecto a los resultados experimentales alcanzados con el Arduino UNO R3, estos se muestran en la Figura \ref{fig:respuesta-exp-senal-cuadrada}.
+Para la tensión en alto, se presenta un sobrepaso máximo de $0.5714\%$ con un valor final de \SI{3.52}{\volt}, bajo un tiempo de asentamiento al $2\%$ de \SI{4.5}{\second}.
+Este resultado se asemeja al simulado, con la diferencia de un ligero sobrepaso al alcanzar el valor final respecto a la referencia.
+
+Para la tensión en bajo de la señal cuadrada, se observa un sobrepaso máximo de $7\%$ al alcanzar un valor final de \SI{0.93}{\volt}.
+Nuevamente, este resultado es similar al simulado y se verifica la precisión y exactitud del modelo de la planta respecto a la planta real.
+
+\begin{figure}[htbp]
+    \centering
+    \resizebox{0.95\columnwidth}{!}{
+    \def\svgwidth{1\columnwidth}
+    \import{images/exp_senal_cuadrada}{exp_senal_cuadrada.pdf_tex}
+    }
+    \caption{Resultados experimentales obtenidos para la señal cuadrada como tensión eléctrica de referencia.}
+    \label{fig:respuesta-exp-senal-cuadrada}
+\end{figure}
+
+Como anotación final, el modelo del controlador fue ajustado para obtener los resultados más exactos y precisos de forma experimental con la planta real.
+Por lo tanto, se varió la ganancia ligeramente hasta llegar al controlador que proporcionó resultados más consistentes con los esperados.

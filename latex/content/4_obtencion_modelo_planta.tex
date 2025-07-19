@@ -1,0 +1,62 @@
+% 3_obtencion_modelo_planta.tex
+
+\section{Obtención del modelo de la planta}
+Ahora bien, con base en la caracterización realizada en la sección anterior, se procede con la obtención del modelo del circuito eléctrico a controlar, según la Figura \ref{fig:circuito_planta}.
+
+Se tienen dos componentes almacenadores de energía (capacitores), lo cual coincide con la teoría de un modelo de segundo orden.
+En el Apéndice \ref{anexoA}, se documentó el procedimiento realizado para obtener la ecuación diferencial de la salida $v_o$ en términos de la entrada $v_s$, así como la función de transferencia del modelo de la planta.
+
+\begin{equation}
+    R_1R_2C_1C_2\ddot{v_o} + (R_1C_1+R_1C_2+R_2C_2)\dot{v_o} + v_o = v_s
+\end{equation}
+
+Luego, se aplica la transformada de Laplace y se resuelve para $\frac{V_o}{V_s}$.
+Se toman condiciones iniciales nulas para el análisis y se obtiene la función de transferencia que modela la planta en cuestión.
+
+\begin{equation}
+    H(s)=\frac{1}{R_1 R_2 C_1 C_2 s^2 + (R_1 C_1 + R_1 C_2 +R_2 C_2)s+1}
+\end{equation}
+
+Al reemplazar los valores experimentales de los componentes eléctricos de la Figura \ref{fig:circuito_planta}, resulta la función de transferencia que modela la planta:
+
+\begin{equation} \label{funcion_transferencia_planta}
+    H(s)=\frac{1}{0.8789s^2 + 2.8162s+1}
+\end{equation}
+
+Al analizar la forma de \eqref{funcion_transferencia_planta}, se determina que la función de transferencia que modela la planta efectivamente es de segundo orden.
+Además de que es tipo 0, puesto que no contiene polos en el origen.
+También, esta representa una respuesta sobreamortiguada, debido a que el valor numérico del factor de amortiguamiento es mayor a 1, específicamente $\xi =1.5020$.
+
+Para el proceso de diseño del controlador, se requiere la ubicación de los polos del modelo de la planta, los cuales se indican en \eqref{polos}.
+
+\begin{equation} \label{polos}
+    \begin{gathered}
+        s_1= -0.4067 \\
+        s_2= -2.7975
+    \end{gathered}
+\end{equation}
+
+A modo de verificación gráfica, se simuló la respuesta temporal del sistema de lazo abierto a un escalón unitario en la Figura \ref{fig:respuesta-temporal-lazo-abierto}, a partir de \eqref{funcion_transferencia_planta}.
+En esta, se evidencia el comportamiento sobreamortiguado de la planta, debido a la ausencia de un sobrepaso respecto a la entrada.
+
+\begin{figure}[htbp]
+    \centering
+    \resizebox{0.95\columnwidth}{!}{
+    \def\svgwidth{1\columnwidth}
+    \import{images/respuesta_lazo_abierto}{respuesta_lazo_abierto.pdf_tex}
+    }
+    \caption{Simulación de la respuesta temporal del modelo de la planta en lazo abierto.}
+    \label{fig:respuesta-temporal-lazo-abierto}
+\end{figure}
+
+Asimismo, en la Figura \ref{fig:bode-lazo-abierto}, se observa la respuesta en frecuencia del modelo de la planta, donde destaca la pendiente de \SI{-40}{\deci\bel}/década característica de un sistema de segundo grado.
+
+\begin{figure}[htbp]
+    \centering
+    \resizebox{0.95\columnwidth}{!}{
+    \def\svgwidth{1.2\columnwidth}
+    \import{images/bode_lazo_abierto}{bode_lazo_abierto.pdf_tex}
+    }
+    \caption{Diagrama de Bode de lazo abierto del sistema.}
+    \label{fig:bode-lazo-abierto}
+\end{figure}

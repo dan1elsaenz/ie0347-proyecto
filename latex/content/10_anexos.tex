@@ -1,0 +1,524 @@
+% 8_anexos.tex
+
+\appendices
+\section{Cálculos para la obtención de la función de transferencia del modelo de la planta}\label{anexoA}
+
+En esta sección, se muestra el proceso para obtener la ecuación diferencial para tensión eléctrica de salida $v_o$ en términos de la entrada $v_s$ respecto al tiempo y la función de transferencia que modela el sistema de la planta.
+
+\begin{figure}[htbp]
+    \centering
+    \resizebox{0.9\columnwidth}{!}{
+    \def\svgwidth{\columnwidth}
+    \import{images/circuito_planta}{Circuito_ltks_lcks.pdf_tex}
+    }
+    \caption{Circuito con leyes de tensiones y corrientes.}
+    \label{circ_leyes}
+\end{figure}
+
+Primeramente, se obtienen las ecuaciones utilizando la \textit{ley de Tensiones Eléctricas de Kirchhoff} y la \textit{ley de Corrientes Eléctricas de Kirchhoff}, las cuales se indican en la Figura \ref{circ_leyes}.
+
+LTK siguiendo la trayectoria 1:
+\begin{equation}
+    -v_s + R_1 i_{R_1} + v_{C_1} = 0
+    \label{LTK1}
+\end{equation}
+
+LTK siguiendo la trayectoria 2:
+\begin{equation}
+    -v_{C_1} + R_2 i_{R_2} + v_{C_2} = 0
+    \label{LTK2}
+\end{equation}
+
+LCK en el punto A:
+\begin{equation}
+    i_{C_1} = i_{R_1} - i_{R_2}
+    \label{LCK}
+\end{equation}
+
+Además, se observa que:
+\begin{equation}
+    v_{C_2} = v_o
+    \label{ecdeVc2}
+\end{equation}
+\begin{equation}
+    i_{R_2} =  i_{C_2}
+    \label{eciR2}
+\end{equation}
+
+Mediante la ecuación que relaciona la tensión y corriente eléctrica del capacitor se tiene:
+\begin{equation}
+    i_{C_1} = C_1 \dot{v_{C_1}}
+    \label{ec_capi1}
+\end{equation}
+\begin{equation}
+    i_{C_2} = C_2 \dot{v_{C_2}}
+    \label{ec_capi2}
+\end{equation}
+
+Sustituyendo \eqref{eciR2} y \eqref{ec_capi2} en \eqref{LTK2}:
+\begin{equation}
+     v_{C_1} = R_2 C_2 \cdot \dot{v_{C_2}} + {v_{C_2}}
+    \label{8}
+\end{equation}
+
+Luego, \eqref{eciR2} en \eqref{LCK}:
+\begin{equation}
+    i_{R_1} = i_{C_1} + i_{C_2}
+    \label{9}
+\end{equation}
+
+\eqref{9} en \eqref{LTK1}:
+\begin{equation}
+    -v_s + R_1 (i_{C_1} + i_{C_2}) + v_{C_1} = 0
+    \label{10}
+\end{equation}
+
+\eqref{ec_capi1} y \eqref{ec_capi2} en \eqref{10}:
+\begin{equation}
+    -v_s +R_1(C_1 \cdot \dot{v_{C_1}} + C_2 \cdot \dot{v_{C_2}}) + v_{C_1} = 0
+    \label{11}
+\end{equation}
+
+Derivando \eqref{8}:
+\begin{equation}
+    \dot{v_{C_1}} = R_2 C_2 \cdot \ddot{v_{C_2}} + \dot{v_{C_2}}
+    \label{12}
+\end{equation}
+
+Después, \eqref{8} y \eqref{12} en \eqref{11}:
+\begin{equation}
+    -v_s + R_1 C_1 (R_2 C_2 \cdot \ddot{v_{C_2}} + \dot{v_{C_2}}) + R_1 C_2 \dot{v_{C_2}} + (R_2 C_2 \cdot \ddot{v_{C_2}} + \dot{v_{C_2}})
+    \label{12.1}
+\end{equation}
+
+Despejando $v_s$ y simplificando en \eqref{12.1}:
+\begin{equation}
+    v_s = R_1 R_2 C_1 C_2  \ddot{v_{C_2}} + (R_1 C_1 + R_1 C_2 + R_2 C_2)\dot{v_{C_2}} + v_{C_2}
+    \label{13}
+\end{equation}
+
+Finalmente, utilizando \eqref{ecdeVc2} en \eqref{13}:
+\begin{equation}
+     v_s = R_1 R_2 C_1 C_2 \ddot{v_{o}} + (R_1 C_1 + R_1 C_2 + R_2 C_2)\dot{v_{o}} + v_{o}
+     \label{14}
+\end{equation}
+
+Con esto, se obtiene la ecuación diferencial buscada para el modelo de la planta.
+Se aplica la Transformada de Laplace a \eqref{14} para obtener la función de transferencia que modela la planta, donde se suponen condiciones iniciales cero.
+\begin{equation}
+    V_s = s^2 R_1 R_2 C_1 C_2  \cdot V_{o} + s(R_1 C_1 + R_1 C_2 + R_2 C_2)V_{o} + V_{o}
+    \label{15}
+\end{equation}
+
+Se acomoda a \eqref{15} de la forma $H(s) = \frac{V_o}{V_s}$:
+\begin{equation}
+   H(s) = \frac{1}{R_1 R_2 C_1 C_2 s^2 + (R_1 C_1 + R_1 C_2 +R_2 C_2)s+1}
+   \label{fnctrans}
+\end{equation}
+
+Finalmente, \eqref{fnctrans} corresponde a la función de transferencia buscada.
+
+\section{Cálculos para los límites de las especificaciones en el LGR} \label{anexoB}
+
+En este apartado, se detalla la memoria de cálculos realizados para el proceso de diseño del controlador en tiempo continuo por medio de la técnica LGR, para cumplir con las especificaciones de tiempo de asentamiento al $2 \%$ y porcentaje de sobrepaso.
+
+Para determinar en qué posición se debe encontrar la línea vertical que limita el tiempo de asentamiento al $2\%$ menor que \SI{5}{\second}, a partir de la definición de este requerimiento:
+
+\begin{equation} \label{eq:ta2.1}
+    t_{s,2\%}=\frac{4}{\xi\omega_n} 
+\end{equation}
+
+Como se requiere que sea menor a \SI{5}{\second}, se realiza una inecuación, la cual es presentada en \eqref{eq:ta2.2}.
+
+\begin{equation}\label{eq:ta2.2}
+    \frac{4}{\xi\omega_n} < \SI{5}{\second}
+\end{equation}
+
+Al resolver para $\xi\omega_n$, se obtiene:
+
+\begin{equation} \label{valor_xiomega}
+    -\xi\omega_n < -0.8    
+\end{equation}
+
+Ahora, para poder obtener el requerimiento del sobrepaso máximo, se va a emplear, 
+\begin{equation} \label{eq:overshoot}
+    M_p = e^{\frac{-\xi \pi}{\sqrt{1-\xi^2}}}
+\end{equation}
+\noindent donde se observa que depende solamente de $\xi$.
+Como el sobrepaso debe ser menor que $5\%$, entonces se realiza la inecuación y se obtiene el valor de $\xi$ con $M_p = 0.05$. 
+
+\begin{equation} \label{overshoot_inec}
+    e^{\frac{-\xi\pi}{\sqrt{1-\xi^2}}} < 0.05
+\end{equation}
+
+Con esto, resulta que el valor de $\xi$ debe ser:
+\begin{equation} \label{eq:xi_inec}
+    \xi>0.6901
+\end{equation}
+
+Ahora, para poder obtener el ángulo respecto al eje horizontal en el LGR para cumplir con el requerimiento de sobrepaso, se calcula con \eqref{eq:overshoot-angulo}.
+
+\begin{equation} \label{eq:overshoot-angulo}
+    \theta = \pm\arctan{\left(\frac{\sqrt{1-\xi^2}}{\xi}\right)}
+\end{equation}
+
+Utilizando el valor del $\xi$ en un sobrepaso del $5\%$ (caso límite de $\xi=0.6901$) en \eqref{eq:overshoot-angulo}, se tiene:
+
+\begin{equation} \label{valor_angulo}
+    \theta=46.3619^\circ
+\end{equation}
+
+Entonces, este corresponde al ángulo de las líneas oblicuas con respecto a la horizontal, las cuales delimitan los valores para poder cumplir el porcentaje de sobrepaso menor al $5\%$.
+
+% Ecuación en diferencias
+\section{Determinación de la ecuación en diferencias para la implementación en Arduino} \label{anexoC}
+
+Para la obtención de la ecuación en diferencias a partir de la función de transferencia discreta obtenida en \eqref{eq:controlador_discreto}, se debe expresar de la siguiente forma:
+
+\begin{equation}
+    C(z) = \frac{U(z)}{E(z)} = \frac{1.5996 \left( z - 0.9594 \right)}{z-1}
+\end{equation}
+\noindent donde la señal de control $U$ representa la salida del controlador y la entrada consiste en la señal de error $E$.
+
+Posteriormente, se debe reacomodar la expresión para obtener la ecuación en diferencias de la forma:
+
+\begin{equation*}
+    U(z) \left(z-1\right)= 1.5996 \left( z - 0.9594 \right) E(z)
+\end{equation*}
+\begin{equation}
+    zU(z) - U(z) = 1.5996 z E(z) - 1.5996 \cdot 0.9594 E(z)
+\end{equation}
+
+Luego, se aplica la Transformada Z Inversa para obtener la ecuación en diferencias.
+
+\begin{equation}
+    u(k+1) - u(k) = 1.5996 e(k+1) - 1.5996 \cdot 0.9594 e(k)
+\end{equation}
+
+Finalmente, se aplica la propiedad de desplazamiento en tiempo discreto y se despeja para la señal del controlador $u(k)$:
+
+\begin{equation}
+    u(k) = u(k-1) + 1.5996 e(k) - 1.5996 \cdot 0.9594 e(k-1)
+\end{equation}
+
+A modo de aclaración, se resolvió en términos de la magnitud de la ganancia y el cero del controlador discreto para simplificar la implementación en Arduino.
+
+% Código en arduino
+\section{Implementación del controlador en Arduino} \label{anexoD}
+
+\begin{adjustwidth}{0.5cm}{0.5cm}
+\begin{lstlisting}[style=arduino, caption={Código implementado en Arduino para el sistema de control realimentado.}, label=lst:arduino]
+#include <TaskScheduler.h>
+
+// Resolucion de lectura y escritura en Arduino
+#define RESOLUCION_LECTURA 1023
+#define RESOLUCION_ESCRITURA 255
+
+// Tiempos de tasks
+#define TIEMPO_MUESTREO 100
+#define TIEMPO_ALTO_CUADRADA 6000
+#define TIEMPO_LECTURA_SWITCH 500
+
+// Referencia de valores para senal cuadrada y pot
+#define TENSION_ALTO 3.5
+#define TENSION_BAJO 1
+#define TENSION_MAX 5.0
+#define TENSION_MIN 0.0
+
+// Cero y ganancia (4 decimales)
+#define Z 0.9594
+#define K 1.88
+
+// Entradas y salidas del Arduino
+const int Vs = 6;        // Pin PWM
+const int Vo = A2;       // Pin Vo
+const int Ref = A1;      // Pin Pot
+const int Switch = 7;    // Pin Switch
+
+// Variables del sistema de control
+float referencia = 0.0;  // Referencia
+float salida = 0.0;      // Salida actual
+float e = 0.0;           // Error actual
+float e_previo = 0.0;    // Error previo
+float u;                 // Control actual
+float u_previo = 0.0;    // Control previa
+
+// Instanciar el objeto de Scheduler
+Scheduler RealTimeCore;
+
+// Senal cuadrada: para alternar entre 1 V y 3.5 V
+bool tension_alta = true;
+
+// Variable para elegir entre:
+// potenciometro (true)
+// senal cuadrada (false)
+bool usar_pot = false;
+
+// Definicion de la funcion del controlador
+void controlador() {
+  referencia = leer_referencia();
+  salida = leer_salida();
+  e = referencia - salida;
+
+  // Ecuacion en diferencias del controlador
+  u = u_previo + K*e - Z*K*e_previo;
+
+  // Actualizacion de valores de instantes previos
+  e_previo = e;
+  u_previo = u;
+
+  // Limites de senal de control
+  u = constrain(u, TENSION_MIN, TENSION_MAX);
+
+  // Escribir senal de control en la entrada de la planta
+  float u_8b = (u * RESOLUCION_ESCRITURA) / TENSION_MAX;
+  analogWrite(Vs, u_8b);
+}
+
+// Para determinar switch ON or OFF
+void definir_entrada_switch(){
+  int estado = digitalRead(Switch);
+  if (estado == HIGH) {
+    usar_pot = true; // Si el switch esta encendido
+  }else if (estado == LOW) {
+    usar_pot = false; // Si el switch esta apagado
+  }
+}
+
+// Funcion para leer la referencia
+float leer_referencia() {
+  if (usar_pot) {
+    // Realizar lectura del potenciometro
+    int lectura = analogRead(Ref);
+
+    return map(lectura, 0, RESOLUCION_LECTURA, TENSION_BAJO * 1000, TENSION_ALTO * 1000) / 1000.0;
+  } else {
+    // Alternar tension para la senal cuadrada
+    if (tension_alta == true) {
+      return TENSION_ALTO;
+    }
+    else {
+      return TENSION_BAJO;
+    }
+  }
+}
+
+// Funcion para leer la salida de la planta
+float leer_salida() {
+  return (analogRead(Vo) * TENSION_MAX) / RESOLUCION_LECTURA;
+}
+
+// Alternar ref cuadrada
+void cambiar_referencia() {
+    if (!usar_pot) {
+        // Se realiza el cambio periodicamente
+        tension_alta = !tension_alta;
+    }
+}
+
+// Funcion para imprimir los valores al monitor serial
+void imprimir_datos() {
+  Serial.print("r:");
+  Serial.print(referencia);
+  Serial.print("\t");
+  Serial.print("y:");
+  Serial.print(salida);
+  Serial.print("\t");
+  Serial.print("u:");
+  Serial.println(u);
+}
+
+// Definir los tiempos de las tareas
+Task taskControlador(TIEMPO_MUESTREO, TASK_FOREVER, &controlador, &RealTimeCore, true);
+
+// Periodo de 12 s para la senal cuadrada
+Task taskReferencia(TIEMPO_ALTO_CUADRADA, TASK_FOREVER, &cambiar_referencia, &RealTimeCore, true);
+
+// Imprimir datos de r, y, u, cada lectura
+Task taskImprimirDatos(TIEMPO_MUESTREO, TASK_FOREVER, &imprimir_datos, &RealTimeCore, true);
+
+// Comprobar si hay cambio en el switch
+Task taskEntradaSwitch(TIEMPO_LECTURA_SWITCH, TASK_FOREVER, &definir_entrada_switch, &RealTimeCore, true);
+
+void setup() {
+  Serial.begin(9600);
+
+  // Configuracion de switch
+  pinMode(Switch, INPUT);
+
+  // Configuracion temporal
+  RealTimeCore.startNow();
+}
+
+void loop() {
+  RealTimeCore.execute();
+}
+\end{lstlisting}
+\end{adjustwidth}
+
+
+% MATLAB
+\section{Código de MATLAB utilizado} \label{anexoE}
+\begin{adjustwidth}{0.5cm}{0.5cm}
+\begin{lstlisting} [style=matlab, caption={Código de MATLAB utilizado en el proyecto.}, label=lst:matlab]
+
+s=tf('s');
+
+% Valores experimentales
+R1 = 9.960*10^(3);
+R2 = 9.860*10^(3);
+C1 = 94.5*10^(-6);
+C2 = 94.7*10^(-6);
+
+% Modelo de la planta
+P=1/(R1*R2*C1*C2*s^2 + (R1*C1 + R1*C2 + R2*C2)*s + 1)
+
+% Diagrama de Bode de lazo abierto
+fig = figure 
+margin(P); 
+
+% Exportar svg
+set(fig, 'Units', 'inches');
+fig.Position(3:4) = [5 4]; % Ancho = 5 in, alto = 4 in %
+exportgraphics(fig, 'bode_lazo_abierto.svg', 'ContentType', 'vector'); 
+
+% Grafica de la respuesta al escalon del lazo abierto
+% Tiempo
+t = 0:0.001:20;
+
+% Funcion escalon unitario
+r = 1 * heaviside(t);
+
+% Simular el sistema de lazo abierto
+y = lsim(P, r, t);
+
+% Graficar
+fig = figure 
+plot(t, r, 'r--', t, y, 'b')
+
+%Rotulacion de los ejes
+xlabel('Tiempo (s)'); 
+ylabel('Amplitud'); 
+
+% title('Respuesta de lazo abierto');
+legend('Referencia r(t)', 'Salida y(t)'); 
+grid on; 
+
+% Sisotool
+sisotool(P);
+
+% Convertir el controlador obtenido a discreto
+t_muestreo = 0.1;
+Cz = c2d(C, t_muestreo, 'zoh')
+
+% Respuesta al escalon del lazo cerrado en tiempo continuo
+% Tiempo
+t = 0:0.01:6;
+
+% Funcion escalon unitario
+r = 1 * heaviside(t);
+
+[y, t1] = step(IOTransfer_r2y, t); % Salida y
+[u, t2] = step(IOTransfer_r2u, t); % Senal de control u
+
+fig = figure; 
+plot(t1, y, 'b'); 
+hold on; 
+plot(t2, u, 'g'); 
+plot(t, r, 'r--'); 
+
+xlabel('Tiempo (s)'); 
+ylabel('Amplitud'); 
+legend('Salida y(t)', 'Control u(t)', 'Referencia r(t)'); 
+% title('Respuesta al escalon y senal de control');
+grid on; 
+
+ts = tiempo_asentamiento.Position(1);
+ys = tiempo_asentamiento.Position(2);
+
+% Linea vertical con estilo personalizado (en vez de xline)
+plot([ts ts], ylim, '--', 'Color', [0.5 0.5 0.5], 'HandleVisibility', 'off'); 
+
+% Etiqueta visual con estetica limpia
+text(ts, min(ylim) + 0.05, ... 
+    sprintf('t_s = %.2f s', ts), ... 
+    'VerticalAlignment', 'bottom', ... 
+    'HorizontalAlignment', 'center', ... 
+    'FontSize', 10, ... 
+    'BackgroundColor', 'white', ... 
+    'Margin', 2); 
+
+% Marcador sobre la curva
+plot(ts, ys, 'ko', 'MarkerFaceColor', 'b', 'MarkerSize', 3, 'HandleVisibility', 'off'); 
+hold off; 
+
+% Respuesta al escalon de lazo cerrado en tiempo discreto
+fig = figure 
+
+plot(out.y.Time, out.y.Data, '--', 'Color', [0.5, 0.5, 0.5]); 
+hold on; 
+plot(out.yz.Time, out.yz.Data, 'b'); 
+plot(out.uz.Time, out.uz.Data, 'g'); 
+plot(out.r.Time, out.r.Data, 'r--'); 
+
+% Extraer datos de la senal yz
+yz_y = out.yz.Data;
+yz_t = out.yz.Time;
+
+% Calcular el valor final y la tolerancia del 2%
+yz_final = yz_y(end);
+yz_tol = 0.02 * abs(yz_final);
+
+% Determinar los puntos dentro de la banda de 2%
+yz_within_bounds = abs(yz_y - yz_final) <= yz_tol;
+
+% Encontrar el tiempo de asentamiento
+for k = 1:length(yz_within_bounds)
+    if all(yz_within_bounds(k:end))
+        yz_ts = yz_t(k);
+        break;
+    end
+end
+
+% Calcular sobrepaso maximo respecto al valor final
+[yz_max, idx_max] = max(yz_y);
+yz_tmax = yz_t(idx_max);
+yz_overshoot = ((yz_max - yz_final) / abs(yz_final)) * 100;
+
+% Indicar tiempo de asentamiento al 2%
+plot([yz_ts yz_ts], ylim, '--', 'Color', [0.5 0.5 0.5], 'HandleVisibility', 'off'); 
+plot(yz_ts, yz_y(find(yz_t == yz_ts, 1)), 'ko', 'MarkerFaceColor', 'b', 'MarkerSize', 3); 
+text(yz_ts, min(ylim) + 0.05, ... 
+    sprintf('t_s = %.2f s', yz_ts), ... 
+    'VerticalAlignment', 'bottom', ... 
+    'HorizontalAlignment', 'center', ... 
+    'FontSize', 10, ... 
+    'BackgroundColor', 'white', ... 
+    'Margin', 2); 
+
+% Graficar el punto maximo
+plot(yz_tmax, yz_max, 'ko', 'MarkerFaceColor', 'r', 'MarkerSize', 3); 
+text(yz_tmax-0.25, yz_max-0.25, ... 
+    sprintf('Overshoot\n%.4f%%', yz_overshoot), ... 
+    'HorizontalAlignment', 'center', ... 
+    'FontSize', 9, ... 
+    'BackgroundColor', 'white', ... 
+    'Margin', 2); 
+
+hold off; 
+
+% Labels y leyenda
+xlabel('Tiempo (s)'); 
+ylabel('Amplitud'); 
+legend('Salida y(t)', 'Salida y(k)', 'Control u(k)', 'Referencia r(t)'); 
+grid on; 
+
+% Diagrama de Bode de lazo cerrado
+fig = figure
+margin(LoopTransfer_C);
+
+% LGR de lazo cerrado
+fig = figure 
+rlocus(LoopTransfer_C); 
+\end{lstlisting}
+\end{adjustwidth}

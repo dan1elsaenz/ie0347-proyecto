@@ -1,0 +1,35 @@
+\section{Implementación del controlador en Arduino}
+
+En cuanto a la implementación del controlador en el dispositivo Arduino UNO R3, se requirió obtener una ecuación en diferencias que modele el comportamiento del controlador.
+Para ello, a partir de \eqref{eq:controlador_discreto}, en el Apéndice \ref{anexoC} se obtuvo detalladamente la función que se implementó como controlador en tiempo discreto.
+
+\begin{equation} \label{eq:ecuacion_diferencias}
+    u(k) = u(k-1) + 1.5996 e(k) - 1.5996 \cdot 0.9594 e(k-1)
+\end{equation}
+
+Ahora bien, se empleó una biblioteca correspondiente a \texttt{TaskScheduler.h}, la cual fue utilizada para la designación de tareas dentro del programa de Arduino que se repiten en un tiempo específico.
+Para cambiar entre la referencia del potenciómetro a una señal cuadrada con período de \SI{12}{\second}, se utilizó un conmutador.\cite{b3}
+
+El archivo contiene las siguientes funciones:
+\begin{itemize}
+    \item \texttt{leer\_referencia}: Lectura de la tensión de referencia. Valida si está en el modo del potenciómetro o de señal cuadrada y registra el valor en cada caso.
+    \item \texttt{leer\_salida}: Lectura de la tensión de la salida para realizar la realimentación y calcular el error.
+    \item \texttt{controlador}: Cálculo y escritura del valor de la señal de control.
+    \item \texttt{cambiar\_referencia}: Cambio de referencia entre el valor alto y bajo de la señal cuadrada.
+    \item \texttt{imprimir\_datos}: Impresión de los datos en el \textit{Serial monitor}.
+    \item \texttt{definir\_entrada\_switch}: Cambio de referencia entre potenciómetro y señal cuadrada mediante el \textit{switch}.
+\end{itemize}
+
+De las anteriores, se definió una tarea para \texttt{controlador} y una para \texttt{imprimir\_datos} que se repiten cada \SI{100}{\milli\second} (tiempo de muestreo).
+En el caso de \texttt{cambiar\_referencia}, se definió una tarea que se repite cada \SI{6}{\second} para realizar el cambio entre tensión eléctrica alta (\SI{3.5}{\volt}) y baja (\SI{1}{\volt}).
+Finalmente, para \texttt{definir\_entrada\_switch}, se utilizó una tarea para registrar si se da un cambio en el \textit{switch} cada \SI{500}{\milli\second}, para cambiar la referencia.
+
+Respecto a la asignación de pines, para escribir la tensión eléctrica de entrada a la planta se asigna el pin digital PWM \texttt{6}, para medir la salida del circuito se asigna el pin analógico \texttt{A2}, para la referencia del potenciómetro el pin \texttt{A1} y, finalmente, se asigna la entrada del \textit{switch} en el pin digital \texttt{7}. 
+
+Específicamente en la función \texttt{controlador}, se establecen variables del algoritmo de control a utilizar como la referencia $r$, la salida $y$ y el error $e$.
+También, se consideró que como la señal de control no puede salirse de los límites físicos de tensión eléctrica establecidos por los pines digitales del Arduino, se utilizó el comando \texttt{constrain} para limitar la salida entre 0 y \SI{5}{\volt}.
+
+Respecto a la resolución de los pines analógicos (lectura) y digitales (escritura), se utilizó el comando \texttt{map} para asociar valores entre 0 y 1023 para la lectura a tensiones eléctricas entre 1 y \SI{3.5}{\volt}.
+De forma similar, se tiene una resolución de 0 a 255 para la escritura de tensiones eléctricas entre 0 y \SI{5}{\volt}.
+
+Para consultar el código detallado, ver el Apéndice \ref{anexoD}.

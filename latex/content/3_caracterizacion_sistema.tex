@@ -1,0 +1,50 @@
+% 3_caracterizacion_sistema.tex
+
+\section{Caracterización del sistema}
+
+En primer lugar, es necesario describir el sistema lineal invariante con el tiempo para el cual se diseñó el sistema de control realimentado.
+La planta consiste en un circuito RC de segundo orden sobreamortiguado, tipo 0, compuesto por dos capacitores y dos resistores.
+La planta junto con los valores medidos experimentalmente se muestran en la Figura \ref{fig:circuito_planta}.
+Se requería controlar la tensión eléctrica de salida $v_o$, a partir de la tensión eléctrica de entrada $v_s$ proporcionada por un Arduino UNO R3.
+
+\begin{figure}[htbp]
+    \centering
+    \resizebox{0.9\columnwidth}{!}{
+    \def\svgwidth{\columnwidth}
+    \import{images/circuito_planta}{Circuito_valores.pdf_tex}
+    }
+    \caption{Circuito eléctrico con los valores medidos en el laboratorio del proceso a controlar.}
+    \label{fig:circuito_planta}
+\end{figure}
+
+En términos generales, se realizaron dos tipos de análisis: de lazo abierto y de lazo cerrado.
+En la Figura \ref{fig:diagrama-bloques-lazo-abierto} se muestra el diagrama de bloques de lazo abierto, donde se señalan el controlador $C$, la planta $P$ y la señal de entrada $u$ y salida $y$.
+En este caso, el controlador corresponde al Arduino UNO R3 con un microcontrolador ATmega328P y la planta consiste en el circuito eléctrico mencionado anteriormente.
+
+\begin{figure}[htbp]
+    \centering
+    \resizebox{\columnwidth}{!}{
+    \def\svgwidth{1.2\columnwidth}
+    \import{images/diagrama_bloques_lazo_abierto}{diagrama_bloques_lazo_abierto.pdf_tex}
+    }
+    \caption{Diagrama de bloques del sistema en lazo abierto.}
+    \label{fig:diagrama-bloques-lazo-abierto}
+\end{figure}
+
+Ahora bien, para el sistema de control realimentado diseñado, se debe considerar el sistema con el lazo de control cerrado, el cual se muestra en la Figura \ref{fig:diagrama-bloques-lazo-cerrado}.
+
+\begin{figure}[htbp]
+    \centering
+    \resizebox{\columnwidth}{!}{
+    \def\svgwidth{1.2\columnwidth}
+    \import{images/diagrama_bloques_lazo_cerrado}{diagrama_bloques_lazo_cerrado.pdf_tex}
+    }
+    \caption{Diagrama de bloques del sistema en lazo cerrado.}
+    \label{fig:diagrama-bloques-lazo-cerrado}
+\end{figure}
+
+En este, se muestran las señales de interés en el proceso de diseño y operación: la referencia $r$ (valor objetivo de tensión eléctrica $v_o$), la señal de control $u$ (salida del Arduino del pin digital 6 PWM, que corresponde a la tensión de entrada de la planta) y la salida $y$ (tensión eléctrica $v_o$).
+Asimismo, se muestran los componentes de interés correspondientes al controlador y la planta.
+
+Además, se considera que el sistema posee dos interfaces: el convertidor A/D en los pines analógicos, que consiste en el sensor de tensión eléctrica del Arduino; y un convertidor D/A, el cual se desempeña como el actuador del sistema que envía la señal de control de tensión eléctrica a la planta, a través de los pines digitales del Arduino.
+
