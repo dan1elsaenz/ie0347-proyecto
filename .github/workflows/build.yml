@@ -1,0 +1,38 @@
+name: Deploy PDF
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build PDF from latex/
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: main.tex
+          working_directory: latex
+
+      - name: Prepare output for GitHub Pages
+        run: |
+          mkdir out
+          cp latex/main.pdf out/main.pdf
+      - uses: actions/upload-artifact@v4
+        with:
+          name: main
+          path: out/main.pdf
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@3.6.2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          CLEAN: true
+          SINGLE_COMMIT: true
+          FOLDER: out
+          GIT_CONFIG_NAME: dan1elsaenz-bot
+          GIT_CONFIG_EMAIL: github-actions@github.com
